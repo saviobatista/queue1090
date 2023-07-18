@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  queue:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile.producer
+    environment:
+      - RABBITMQ_SERVER=amqp://guest:guest@queue:5672
+    volumes:
+      - /data/adsbqueue:/data
+    depends_on:
+      - queue
+    links: 
+      - queue
+    command: >
+      sh -c "dockerize -wait tcp://queue:5672 -timeout 300s &&
+             cargo run"
+  
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile.consumer
+    environment:
+      - RABBITMQ_SERVER=amqp://guest:guest@queue:5672
+      - HOSTS=192.168.1.35,192.168.1.31,192.168.1.38
+    depends_on:
+      - queue
+    links: 
+      - queue
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      sh -c "dockerize -wait tcp://queue:5672 -timeout 300s &&
+             cargo run"
