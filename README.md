@@ -6,6 +6,8 @@ This project is a simple data pipeline that reads data from multiple hosts and s
 To get started, you will need to have Docker and Docker Compose installed on your machine. Once you have Docker and Docker Compose installed, you can clone this repository and run the following command to start the pipeline:
 
 `docker-compose up`
+or
+`docker-compose up -d` to run as daemon (background)
 
 This will start the RabbitMQ message queue, the producer, and the consumer. The producer will start reading data from the hosts specified in the HOSTS environment variable and publish it to the adsb queue. The consumer will start reading data from the adsb queue and store it in compressed CSV files in the /data directory.
 
